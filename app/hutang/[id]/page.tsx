@@ -110,8 +110,14 @@ export default function DetailHutangPage() {
             {pelanggan?.nama?.slice(0, 2).toUpperCase() || "PL"}
           </div>
           <h2 className="text-xl font-bold text-gray-900">{pelanggan?.nama || "Memuat..."}</h2>
-          <span className="mt-1 px-3 py-1 bg-orange-50 text-orange-600 text-xs font-medium rounded-full border border-orange-100">
-            Belum Lunas
+          <span
+            className={`mt-1 px-3 py-1 text-xs font-medium rounded-full border ${
+              sisa > 0
+                ? "bg-orange-50 text-orange-600 border-orange-100"
+                : "bg-green-50 text-green-600 border-green-100"
+            }`}
+          >
+            {sisa > 0 ? "Belum Lunas" : "Lunas"}
           </span>
 
           <div className="w-full border-t border-dashed border-gray-200 my-4" />
