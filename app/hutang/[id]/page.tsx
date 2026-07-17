@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { db } from "@/lib/dexie";
 import { alokasikanPembayaran } from "@/lib/utils";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Pencil, Check, X } from "lucide-react";
 
 // Daftar kombinasi warna background dan teks yang lembut & ramah di mata
 const COLORS = [
@@ -31,6 +31,8 @@ export default function DetailHutangPage() {
   const router = useRouter();
   const [bayar, setBayar] = useState("");
   const [activeTab, setActiveTab] = useState<"riwayat" | "pembayaran">("riwayat");
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editJumlah, setEditJumlah] = useState("");
 
   // Fetch Data menggunakan Dexie Live Query
   const pelanggan = useLiveQuery(() => db.pelanggan.get(pelangganId), [pelangganId]);
@@ -61,6 +63,31 @@ export default function DetailHutangPage() {
   async function handleLunas() {
     if (!confirm(`Bayar lunas semua utang Rp ${sisa.toLocaleString("id-ID")}?`)) return;
     await bayarJumlah(sisa);
+  }
+
+  function mulaiEdit(id: number, jumlahSaatIni: number) {
+    setEditingId(id);
+    setEditJumlah(String(jumlahSaatIni));
+  }
+
+  async function simpanEdit(hutangId: number, dibayarSaatIni: number) {
+    const jumlahBaru = Number(editJumlah);
+    if (!jumlahBaru || jumlahBaru <= 0) return;
+
+    if (jumlahBaru < dibayarSaatIni) {
+      alert(
+        `Nominal tidak boleh kurang dari yang sudah dibayar (Rp ${dibayarSaatIni.toLocaleString("id-ID")}).`,
+      );
+      return;
+    }
+
+    await db.hutang.update(hutangId, {
+      jumlah: jumlahBaru,
+      lunas: dibayarSaatIni >= jumlahBaru,
+    });
+
+    setEditingId(null);
+    setEditJumlah("");
   }
   const avatarColor = getAvatarColor(pelangganId);
   return (
@@ -122,30 +149,75 @@ export default function DetailHutangPage() {
               daftarHutang.map((h) => (
                 <div
                   key={h.id}
-                  className="bg-white rounded-xl p-4 border border-gray-100 shadow-xs flex justify-between items-center"
+                  className="bg-white rounded-xl p-4 border border-gray-100 shadow-xs"
                 >
-                  <div>
-                    <p className="font-semibold text-gray-900">Bon Belanja</p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {new Date(h.tanggal).toLocaleDateString("id-ID", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </p>
-                    <div className="flex items-center gap-1 mt-2 text-[0.7rem] text-gray-500">
-                      <span>Total: Rp {h.jumlah.toLocaleString("id-ID")}</span>
-                      <span className="w-1 h-1 rounded-full bg-gray-300" />
-                      <span>Sisa: Rp {(h.jumlah - h.dibayar).toLocaleString("id-ID")}</span>
+                  {editingId === h.id ? (
+                    <div className="space-y-2">
+                      <p className="font-semibold text-gray-900 text-sm">Edit Nominal Bon</p>
+                      <div className="relative">
+                        <span className="absolute left-3.5 top-2.5 text-sm font-bold text-gray-400">Rp</span>
+                        <input
+                          type="number"
+                          value={editJumlah}
+                          onChange={(e) => setEditJumlah(e.target.value)}
+                          autoFocus
+                          className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-9 pr-3 py-2 text-sm font-medium focus:outline-hidden focus:border-[#218152]"
+                        />
+                      </div>
+                      {h.dibayar > 0 && (
+                        <p className="text-[0.7rem] text-gray-400">
+                          Sudah dibayar Rp {h.dibayar.toLocaleString("id-ID")} — nominal baru tidak boleh kurang dari ini.
+                        </p>
+                      )}
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setEditingId(null)}
+                          className="flex-1 border border-gray-200 text-gray-500 rounded-lg py-2 text-xs font-semibold flex items-center justify-center gap-1"
+                        >
+                          <X size={14} /> Batal
+                        </button>
+                        <button
+                          onClick={() => simpanEdit(h.id, h.dibayar)}
+                          className="flex-1 bg-[#218152] text-white rounded-lg py-2 text-xs font-semibold flex items-center justify-center gap-1"
+                        >
+                          <Check size={14} /> Simpan
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                  <span
-                    className={`text-xs font-semibold px-2.5 py-1 rounded-md ${
-                      h.lunas ? "bg-green-50 text-green-600" : "bg-orange-50 text-orange-600"
-                    }`}
-                  >
-                    {h.lunas ? "Lunas" : "Sisa Bon"}
-                  </span>
+                  ) : (
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="font-semibold text-gray-900">Bon Belanja</p>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          {new Date(h.tanggal).toLocaleDateString("id-ID", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </p>
+                        <div className="flex items-center gap-1 mt-2 text-[0.7rem] text-gray-500">
+                          <span>Total: Rp {h.jumlah.toLocaleString("id-ID")}</span>
+                          <span className="w-1 h-1 rounded-full bg-gray-300" />
+                          <span>Sisa: Rp {(h.jumlah - h.dibayar).toLocaleString("id-ID")}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => mulaiEdit(h.id, h.jumlah)}
+                          className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-50"
+                        >
+                          <Pencil size={14} />
+                        </button>
+                        <span
+                          className={`text-xs font-semibold px-2.5 py-1 rounded-md ${
+                            h.lunas ? "bg-green-50 text-green-600" : "bg-orange-50 text-orange-600"
+                          }`}
+                        >
+                          {h.lunas ? "Lunas" : "Sisa Bon"}
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))
             ) : (

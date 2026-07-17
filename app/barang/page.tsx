@@ -149,9 +149,9 @@ export default function BarangPage() {
       {/* Floating Add Button */}
       <button
         onClick={openAdd}
-        className="fixed bottom-24 right-5 w-14 h-14 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white flex items-center justify-center shadow-lg shadow-blue-700/20 active:scale-90 transition-all z-40"
+        className="fixed bottom-16 left-1/2 -translate-x-1/2 w-16 h-8 rounded-t-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white shadow-lg shadow-green-600/30 flex items-start justify-center pt-1.5 z-40"
       >
-        <Plus className="w-7 h-7 stroke-[2.8]" />
+        <Plus size={22} />
       </button>
 
       {/* Backdrop & Dialog Modal Form Barang dengan Efek Transisi Masuk ke Atas secara Halus */}

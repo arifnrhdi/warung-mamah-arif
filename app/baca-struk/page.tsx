@@ -152,29 +152,29 @@ export default function BacaStrukPage() {
 
         {/* 5. Bagian Catat Total Belanja */}
         {teks && !loading && (
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-xs space-y-4">
+          <div className="bg-white rounded-2xl border border-gray-100 p-2 shadow-xs space-y-4">
             <div className="flex items-center gap-2">
-              <Sparkles size={16} className="text-amber-500 fill-amber-500" />
+              <Sparkles size={14} className="text-amber-500 fill-amber-500" />
               <p className="text-xs font-bold text-gray-500 tracking-wider uppercase">Catat ke Pengeluaran</p>
             </div>
 
             <div className="flex gap-2">
-              <div className="relative flex-1">
-                <span className="absolute left-4 top-3.5 text-base font-bold text-gray-400">Rp</span>
+              <div className="relative">
+                <span className="absolute left-4 top-3 text-sm font-semibold text-gray-400">Rp</span>
                 <input
                   type="number"
                   value={total}
                   onChange={(e) => setTotal(e.target.value)}
-                  placeholder="Ketik total belanja"
-                  className="w-full bg-gray-50 border border-gray-200 rounded-2xl pl-10 pr-4 py-3 text-base font-bold focus:outline-hidden focus:border-[#218152] focus:bg-white transition-all placeholder:text-gray-400"
+                  placeholder="total belanja"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-2xl pl-10 pr-4 py-3 text-sm font-semibold focus:outline-hidden focus:border-[#218152] focus:bg-white transition-all placeholder:text-gray-400"
                 />
               </div>
               <button
                 onClick={simpanBelanja}
                 className="bg-[#218152] hover:bg-[#1a6641] active:scale-95 text-white rounded-2xl px-6 flex items-center justify-center gap-2 font-bold transition-all shadow-md shadow-emerald-700/10"
               >
-                <Save size={18} />
-                <span>Simpan</span>
+                <Save size={16} />
+                <span className="text-base font-semibold">Simpan</span>
               </button>
             </div>
           </div>
