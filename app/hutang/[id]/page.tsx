@@ -7,6 +7,24 @@ import { db } from "@/lib/dexie";
 import { alokasikanPembayaran } from "@/lib/utils";
 import { ChevronLeft } from "lucide-react";
 
+// Daftar kombinasi warna background dan teks yang lembut & ramah di mata
+const COLORS = [
+  { bg: "bg-orange-100", text: "text-orange-600" },
+  { bg: "bg-blue-100", text: "text-blue-600" },
+  { bg: "bg-purple-100", text: "text-purple-600" },
+  { bg: "bg-pink-100", text: "text-pink-600" },
+  { bg: "bg-cyan-100", text: "text-cyan-600" },
+  { bg: "bg-indigo-100", text: "text-indigo-600" },
+  { bg: "bg-rose-100", text: "text-rose-600" },
+  { bg: "bg-amber-100", text: "text-amber-600" },
+];
+
+// Fungsi untuk menentukan warna berdasarkan ID agar warnanya selalu konsisten & tidak berubah saat refresh
+function getAvatarColor(id: number) {
+  const index = Math.abs(id) % COLORS.length;
+  return COLORS[index];
+}
+
 export default function DetailHutangPage() {
   const { id } = useParams<{ id: string }>();
   const pelangganId = Number(id);
@@ -44,7 +62,7 @@ export default function DetailHutangPage() {
     if (!confirm(`Bayar lunas semua utang Rp ${sisa.toLocaleString("id-ID")}?`)) return;
     await bayarJumlah(sisa);
   }
-
+  const avatarColor = getAvatarColor(pelangganId);
   return (
     <div className="min-h-screen bg-gray-50 p-2 pb-56 text-gray-800">
       {/* Header Navigasi */}
@@ -61,7 +79,7 @@ export default function DetailHutangPage() {
       <div className="p-4 max-w-md mx-auto space-y-4">
         {/* Ringkasan Profil & Utang Pelanggan */}
         <div className="bg-white rounded-2xl p-5 shadow-xs border border-gray-100 flex flex-col items-center text-center">
-          <div className="w-16 h-16 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold text-xl mb-3 shadow-inner">
+          <div className={`w-16 h-16 rounded-full ${avatarColor.bg} ${avatarColor.text} flex items-center justify-center font-bold text-xl mb-3 shadow-inner`}>
             {pelanggan?.nama?.slice(0, 2).toUpperCase() || "PL"}
           </div>
           <h2 className="text-xl font-bold text-gray-900">{pelanggan?.nama || "Memuat..."}</h2>
@@ -115,7 +133,7 @@ export default function DetailHutangPage() {
                         year: "numeric",
                       })}
                     </p>
-                    <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                    <div className="flex items-center gap-1 mt-2 text-[0.7rem] text-gray-500">
                       <span>Total: Rp {h.jumlah.toLocaleString("id-ID")}</span>
                       <span className="w-1 h-1 rounded-full bg-gray-300" />
                       <span>Sisa: Rp {(h.jumlah - h.dibayar).toLocaleString("id-ID")}</span>

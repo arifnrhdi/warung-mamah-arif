@@ -55,6 +55,7 @@ export default function RiwayatPage() {
                   {new Date(t.tanggal).toLocaleString("id-ID", {
                     day: "numeric",
                     month: "short",
+                    year: "numeric",
                     hour: "2-digit",
                     minute: "2-digit",
                   })}
