@@ -155,7 +155,7 @@ export default function DetailHutangPage() {
           <div className="space-y-2.5">
             {daftarHutang && daftarHutang.length > 0 ? (
               daftarHutang.map((h) => (
-                <div key={h.id} className="bg-white rounded-xl p-4 border border-gray-100 shadow-xs">
+                <div key={h.id} className="bg-white rounded-xl p-2 border border-gray-100 shadow-xs">
                   {editingId === h.id ? (
                     <div className="space-y-2">
                       <p className="font-semibold text-gray-900 text-sm">Edit Nominal Bon</p>
