@@ -35,12 +35,36 @@ export default function DashboardPage() {
 
     const barang = await db.barang.toArray();
     const barangMap = new Map(barang.map((b) => [b.id, b]));
-    let laba = 0;
-    for (const t of tunaiHariIni) {
+
+    function marginTransaksi(t: { items: { barangId: number; hargaJual: number; qty: number }[] }) {
+      let margin = 0;
       for (const item of t.items) {
         const b = barangMap.get(item.barangId);
-        if (b) laba += (item.hargaJual - b.hargaBeli) * item.qty;
+        if (b) margin += (item.hargaJual - b.hargaBeli) * item.qty;
       }
+      return margin;
+    }
+
+    // laba dari transaksi tunai hari ini, diakui penuh (duit + margin langsung kejadian)
+    let laba = 0;
+    for (const t of tunaiHariIni) {
+      laba += marginTransaksi(t);
+    }
+
+    // laba dari pembayaran utang hari ini, diakui proporsional ke porsi yang dibayar
+    // (baru sebagian dibayar -> laba yang diakui juga cuma sebagian, bukan nunggu lunas)
+    const semuaHutangUntukLaba = await db.hutang.toArray();
+    const hutangMap = new Map(semuaHutangUntukLaba.map((h) => [h.id, h]));
+    const semuaTransaksiUntukLaba = await db.transaksi.toArray();
+    const transaksiMap = new Map(semuaTransaksiUntukLaba.map((t) => [t.id, t]));
+
+    for (const p of pembayaranHariIni) {
+      const h = hutangMap.get(p.hutangId);
+      const t = h ? transaksiMap.get(h.transaksiId) : null;
+      if (!h || !t || h.jumlah <= 0) continue;
+      const marginAsli = marginTransaksi(t);
+      const proporsi = p.jumlah / h.jumlah;
+      laba += marginAsli * proporsi;
     }
 
     const hutang = (await db.hutang.toArray()).filter((h) => !h.lunas);
@@ -76,8 +100,8 @@ export default function DashboardPage() {
       {/* 1. Header (Selamat Pagi, Mamah) */}
       <div className="p-5 pb-2 flex justify-between items-center bg-white">
         <div>
-          <h1 className="text-xl font-bold text-gray-900 flex items-center gap-1.5">
-            Selamat {getGreeting?.() ?? "Pagi"}, Mamah <span className="animate-bounce">👋</span>
+          <h1 className="text-lg font-bold text-gray-900 flex items-center gap-1.5">
+            Selamat {getGreeting?.() ?? "Pagi"}, Mamah
           </h1>
           <p className="text-gray-500 text-xs mt-0.5">Semangat berjualan hari ini!</p>
         </div>

@@ -40,12 +40,35 @@ export default function LaporanPage() {
     const penjualan = tunai.reduce((sum, t) => sum + t.total, 0) + totalPembayaran;
     const totalPengeluaran = pengeluaran.reduce((sum, p) => sum + p.jumlah, 0);
 
-    let laba = 0;
+    function marginTransaksi(t: { items: { barangId: number; hargaJual: number; qty: number }[] }) {
+      let margin = 0;
+      for (const item of t.items) {
+        const b = barangMap.get(item.barangId);
+        if (b) margin += (item.hargaJual - b.hargaBeli) * item.qty;
+      }
+      return margin;
+    }
+
+    // laba tunai diakui penuh, laba dari pembayaran utang diakui proporsional ke porsi dibayar
+    let laba = tunai.reduce((sum, t) => sum + marginTransaksi(t), 0);
+
+    const semuaHutangUntukLaba = await db.hutang.toArray();
+    const hutangMap = new Map(semuaHutangUntukLaba.map((h) => [h.id, h]));
+    const semuaTransaksiUntukLaba = await db.transaksi.toArray();
+    const transaksiMap = new Map(semuaTransaksiUntukLaba.map((t) => [t.id, t]));
+
+    for (const p of pembayaran) {
+      const h = hutangMap.get(p.hutangId);
+      const t = h ? transaksiMap.get(h.transaksiId) : null;
+      if (!h || !t || h.jumlah <= 0) continue;
+      laba += marginTransaksi(t) * (p.jumlah / h.jumlah);
+    }
+
+    // barang terlaris tetap dihitung dari semua transaksi (tunai+utang) -
+    // ini ngukur seberapa laku barangnya, bukan seberapa banyak duit kepegang
     const terlaris = new Map<string, number>();
     for (const t of transaksi) {
       for (const item of t.items) {
-        const b = barangMap.get(item.barangId);
-        if (b && t.metode === "tunai") laba += (item.hargaJual - b.hargaBeli) * item.qty;
         terlaris.set(item.nama, (terlaris.get(item.nama) ?? 0) + item.qty);
       }
     }

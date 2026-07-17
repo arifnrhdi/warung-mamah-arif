@@ -1,4 +1,4 @@
-const CACHE_NAME = "warung-mamah-v1";
+const CACHE_NAME = "warung-mamah-v2";
 
 self.addEventListener("install", () => {
   self.skipWaiting();
