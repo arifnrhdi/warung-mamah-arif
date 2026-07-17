@@ -1,8 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import Link from "next/link";
-import { Settings, ScanText, ChevronRight, TrendingUp, TrendingDown, ShoppingBag } from "lucide-react";
+import { Settings, ScanText, ChevronRight, TrendingUp, TrendingDown, ShoppingBag, Download } from "lucide-react";
 import { db } from "@/lib/dexie";
 
 function isToday(d: Date) {
@@ -19,7 +20,40 @@ function getGreeting() {
   return "Malam";
 }
 
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+}
+
+function formatRp(value: number | undefined) {
+  return value === undefined ? "…" : value.toLocaleString("id-ID");
+}
+
 export default function DashboardPage() {
+  const [isStandalone, setIsStandalone] = useState<boolean | null>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+
+  useEffect(() => {
+    const standalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+    setIsStandalone(standalone);
+
+    function handleBeforeInstall(e: Event) {
+      e.preventDefault();
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
+    }
+    window.addEventListener("beforeinstallprompt", handleBeforeInstall);
+    return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstall);
+  }, []);
+
+  async function installApp() {
+    if (!deferredPrompt) return;
+    await deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    setDeferredPrompt(null);
+  }
+
   const ringkasan = useLiveQuery(async () => {
     const transaksi = await db.transaksi.toArray();
     const hariIni = transaksi.filter((t) => isToday(new Date(t.tanggal)));
@@ -95,6 +129,41 @@ export default function DashboardPage() {
     };
   }, []);
 
+  if (isStandalone === null) {
+    return <div className="max-w-md mx-auto min-h-screen bg-[#F9FBFA]" />;
+  }
+
+  if (isStandalone === false) {
+    return (
+      <div className="max-w-md mx-auto min-h-screen bg-[#F9FBFA] font-sans antialiased flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-20 h-20 rounded-3xl bg-[#218152] text-white flex items-center justify-center shadow-lg shadow-emerald-700/20 mb-5">
+          <ShoppingBag size={40} strokeWidth={2} />
+        </div>
+        <h1 className="text-xl font-bold text-gray-900">Warung Mamah</h1>
+        <p className="text-gray-500 text-sm mt-1.5 mb-8">Aplikasi Kasir & Utang untuk Warung Mamah Arif</p>
+
+        {deferredPrompt ? (
+          <button
+            onClick={installApp}
+            className="w-full bg-[#218152] hover:bg-[#166940] active:scale-[0.99] transition-all text-white rounded-2xl py-4 text-center font-extrabold flex items-center justify-center gap-2 shadow-md shadow-emerald-700/10"
+          >
+            <Download size={18} />
+            Download Aplikasi
+          </button>
+        ) : (
+          <div className="w-full bg-white border border-gray-100 rounded-2xl p-5 shadow-xs text-left space-y-2">
+            <p className="text-xs font-bold text-gray-700">Cara install ke HP:</p>
+            <p className="text-xs text-gray-500 leading-relaxed">
+              Buka menu browser (⋮ di Chrome, atau tombol Share di Safari), lalu pilih{" "}
+              <span className="font-semibold text-gray-700">&quot;Tambahkan ke Layar Utama&quot;</span> /{" "}
+              <span className="font-semibold text-gray-700">&quot;Install aplikasi&quot;</span>.
+            </p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-md mx-auto min-h-screen bg-[#F9FBFA] pb-20 font-sans antialiased">
       {/* 1. Header (Selamat Pagi, Mamah) */}
@@ -118,7 +187,7 @@ export default function DashboardPage() {
         <div className="relative overflow-hidden bg-[#2D8A5E] text-white rounded-2xl p-6 shadow-md shadow-emerald-800/10">
           <p className="text-xs font-medium text-white/80 mb-1">Penjualan Hari Ini</p>
           <p className="text-3xl font-extrabold tracking-tight">
-            Rp {(ringkasan?.penjualanHariIni ?? 0).toLocaleString("id-ID")}
+            Rp {formatRp(ringkasan?.penjualanHariIni)}
           </p>
           {/* Ilustrasi Kantong Belanja di Pojok Kanan Bawah */}
           <div className="absolute right-4 bottom-3 opacity-20 pointer-events-none">
@@ -135,7 +204,7 @@ export default function DashboardPage() {
           >
             <div>
               <p className="text-xs text-white/95 font-medium mb-2">Utang Belum Lunas</p>
-              <p className="text-lg font-extrabold">Rp {(ringkasan?.utangBelumLunas ?? 0).toLocaleString("id-ID")}</p>
+              <p className="text-lg font-extrabold">Rp {formatRp(ringkasan?.utangBelumLunas)}</p>
             </div>
             <p className="text-[11px] text-[#FF6D2B] font-bold mt-3 bg-white self-start px-2 py-0.5 rounded-full shadow-sm">
               {ringkasan?.pelangganBerutang ?? 0} Pelanggan
@@ -150,7 +219,7 @@ export default function DashboardPage() {
             <div>
               <p className="text-xs text-amber-900/80 font-medium mb-2">Belanja Terakhir</p>
               <p className="text-lg font-extrabold text-amber-950">
-                Rp {(ringkasan?.belanjaTerakhir ?? 0).toLocaleString("id-ID")}
+                Rp {formatRp(ringkasan?.belanjaTerakhir)}
               </p>
             </div>
             <p className="text-[11px] text-amber-800 font-semibold mt-3 truncate">
