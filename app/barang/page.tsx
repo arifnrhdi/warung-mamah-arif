@@ -26,7 +26,8 @@ export default function BarangPage() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const form = new FormData(e.currentTarget);
+    const formEl = e.currentTarget; // simpan referensi sebelum await, currentTarget bisa null setelahnya
+    const form = new FormData(formEl);
     const data = {
       nama: String(form.get("nama")),
       hargaBeli: Number(form.get("hargaBeli")),
@@ -38,6 +39,7 @@ export default function BarangPage() {
     } else {
       await db.barang.add(data as Barang);
     }
+    formEl.reset();
     setOpen(false);
     setEditing(null);
     setPreview(null);
