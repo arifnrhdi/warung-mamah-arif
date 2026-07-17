@@ -106,7 +106,9 @@ export default function DetailHutangPage() {
       <div className="p-4 max-w-md mx-auto space-y-4">
         {/* Ringkasan Profil & Utang Pelanggan */}
         <div className="bg-white rounded-2xl p-5 shadow-xs border border-gray-100 flex flex-col items-center text-center">
-          <div className={`w-16 h-16 rounded-full ${avatarColor.bg} ${avatarColor.text} flex items-center justify-center font-bold text-xl mb-3 shadow-inner`}>
+          <div
+            className={`w-16 h-16 rounded-full ${avatarColor.bg} ${avatarColor.text} flex items-center justify-center font-bold text-xl mb-3 shadow-inner`}
+          >
             {pelanggan?.nama?.slice(0, 2).toUpperCase() || "PL"}
           </div>
           <h2 className="text-xl font-bold text-gray-900">{pelanggan?.nama || "Memuat..."}</h2>
@@ -153,10 +155,7 @@ export default function DetailHutangPage() {
           <div className="space-y-2.5">
             {daftarHutang && daftarHutang.length > 0 ? (
               daftarHutang.map((h) => (
-                <div
-                  key={h.id}
-                  className="bg-white rounded-xl p-4 border border-gray-100 shadow-xs"
-                >
+                <div key={h.id} className="bg-white rounded-xl p-4 border border-gray-100 shadow-xs">
                   {editingId === h.id ? (
                     <div className="space-y-2">
                       <p className="font-semibold text-gray-900 text-sm">Edit Nominal Bon</p>
@@ -172,7 +171,8 @@ export default function DetailHutangPage() {
                       </div>
                       {h.dibayar > 0 && (
                         <p className="text-[0.7rem] text-gray-400">
-                          Sudah dibayar Rp {h.dibayar.toLocaleString("id-ID")} — nominal baru tidak boleh kurang dari ini.
+                          Sudah dibayar Rp {h.dibayar.toLocaleString("id-ID")} — nominal baru tidak boleh kurang dari
+                          ini.
                         </p>
                       )}
                       <div className="flex gap-2">
@@ -215,7 +215,7 @@ export default function DetailHutangPage() {
                           <Pencil size={14} />
                         </button>
                         <span
-                          className={`text-xs font-semibold px-2.5 py-1 rounded-md ${
+                          className={`text-[0.7rem] font-semibold px-2.5 py-1 rounded-md ${
                             h.lunas ? "bg-green-50 text-green-600" : "bg-orange-50 text-orange-600"
                           }`}
                         >
