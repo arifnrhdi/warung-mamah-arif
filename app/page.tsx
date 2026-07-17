@@ -163,8 +163,8 @@ export default function DashboardPage() {
       {/* 1. Header (Selamat Pagi, Mamah) */}
       <div className="p-5 pb-2 flex justify-between items-center bg-white">
         <div>
-          <h1 className="text-xl font-bold text-gray-900 flex items-center gap-1.5">
-            Selamat {getGreeting?.() ?? "Pagi"}, Mamah <span className="animate-bounce">👋</span>
+          <h1 className="text-lg font-bold text-gray-900 flex items-center gap-1.5">
+            Selamat {getGreeting?.() ?? "Pagi"}, Mamah
           </h1>
           <p className="text-gray-500 text-xs mt-0.5">Semangat berjualan hari ini!</p>
         </div>

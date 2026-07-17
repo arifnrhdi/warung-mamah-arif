@@ -124,7 +124,6 @@ export default function LaporanPage() {
         <div className="space-y-3">
           <div className="flex justify-between items-center px-0.5">
             <h2 className="font-bold text-gray-900 text-sm tracking-wide">Barang Terlaris</h2>
-            <button className="text-xs font-semibold text-emerald-600 hover:text-emerald-700">Lihat Semua</button>
           </div>
 
           <div className="space-y-2">
