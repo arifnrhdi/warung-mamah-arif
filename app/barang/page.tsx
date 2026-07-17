@@ -38,6 +38,7 @@ export default function BarangPage() {
     } else {
       await db.barang.add(data as Barang);
     }
+    e.currentTarget.reset();
     setOpen(false);
     setEditing(null);
     setPreview(null);
