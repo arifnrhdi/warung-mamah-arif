@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Warung Mamah",
-    short_name: "Warung",
+    name: "Warung Mamah Arif",
+    short_name: "Warung Arif",
     description: "Aplikasi Kasir & Utang",
     start_url: "/",
     display: "standalone",

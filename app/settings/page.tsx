@@ -39,11 +39,11 @@ export default function SettingsPage() {
 
   async function backup() {
     const data = {
+      barang: await db.barang.toArray(),
       transaksi: await db.transaksi.toArray(),
       pelanggan: await db.pelanggan.toArray(),
       hutang: await db.hutang.toArray(),
       pengeluaran: await db.pengeluaran.toArray(),
-      pembayaran: await db.pembayaran.toArray(),
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -61,16 +61,17 @@ export default function SettingsPage() {
   async function restore(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!confirm("Ini akan menimpa transaksi, pelanggan, utang, pengeluaran & pembayaran saat ini (data barang tidak berubah). Lanjutkan?")) return;
+    if (!confirm("Ini akan menimpa semua data saat ini. Lanjutkan?")) return;
 
     const text = await file.text();
     const data = JSON.parse(text);
 
     await db.transaction(
       "rw",
-      [db.transaksi, db.pelanggan, db.hutang, db.pengeluaran, db.pembayaran],
+      [db.barang, db.transaksi, db.pelanggan, db.hutang, db.pengeluaran, db.pembayaran],
       async () => {
       await Promise.all([
+        db.barang.clear(),
         db.transaksi.clear(),
         db.pelanggan.clear(),
         db.hutang.clear(),
@@ -78,6 +79,7 @@ export default function SettingsPage() {
         db.pembayaran.clear(),
       ]);
       await Promise.all([
+        db.barang.bulkAdd(data.barang ?? []),
         db.transaksi.bulkAdd(data.transaksi ?? []),
         db.pelanggan.bulkAdd(data.pelanggan ?? []),
         db.hutang.bulkAdd(data.hutang ?? []),

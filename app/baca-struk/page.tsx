@@ -92,7 +92,7 @@ export default function BacaStrukPage() {
       <div className="p-4 space-y-5">
         {/* 2. Area Scanner Foto Struk */}
         <label className="relative block bg-white border-2 border-dashed border-gray-200 hover:border-emerald-500 rounded-3xl p-6 text-center cursor-pointer transition-all shadow-xs overflow-hidden group">
-          <input type="file" accept="image/*" capture="environment" onChange={handleFile} className="hidden" />
+          <input type="file" accept="image/*" onChange={handleFile} className="hidden" />
 
           {gambar ? (
             <div className="relative inline-block max-w-full">
