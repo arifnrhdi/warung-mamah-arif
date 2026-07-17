@@ -151,7 +151,7 @@ export default function BarangPage() {
       {/* Floating Add Button */}
       <button
         onClick={openAdd}
-        className="fixed bottom-16 left-1/2 -translate-x-1/2 w-16 h-8 rounded-t-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white shadow-lg shadow-green-600/30 flex items-start justify-center pt-1.5 z-40"
+        className="fixed bottom-[4.8rem] left-1/2 -translate-x-1/2 w-16 h-8 rounded-t-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white shadow-lg shadow-green-600/30 flex items-start justify-center pt-1.5 z-40"
       >
         <Plus size={22} />
       </button>
